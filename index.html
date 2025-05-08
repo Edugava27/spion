@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Spion – Das Spiel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 { text-align: center; }
+    input[type="text"] {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+    }
+    button {
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .player-inputs, .game-screen {
+      display: none;
+    }
+    .reveal {
+      font-size: 1.4em;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>🕵️ Spion – Das Spiel</h1>
+
+  <div class="setup">
+    <p>Wie viele Spieler?</p>
+    <select id="playerCount">
+      <option value="4">4 Spieler</option>
+      <option value="5">5 Spieler</option>
+      <option value="6">6 Spieler</option>
+      <option value="7">7 Spieler</option>
+      <option value="8">8 Spieler</option>
+      <option value="9">9 Spieler</option>
+      <option value="10">10 Spieler</option>
+    </select>
+    <button onclick="createPlayerInputs()">Weiter</button>
+  </div>
+
+  <div class="player-inputs">
+    <h2>Spielernamen eingeben:</h2>
+    <div id="inputs"></div>
+    <button onclick="startGame()">Spiel starten</button>
+  </div>
+
+  <div class="game-screen">
+    <h2 id="currentPlayer"></h2>
+    <button onclick="showInfo()">Meine Rolle anzeigen</button>
+    <div class="reveal" id="roleReveal"></div>
+    <button onclick="nextPlayer()" style="display:none;" id="nextBtn">Nächster Spieler</button>
+    <button onclick="location.reload()" style="display:none;" id="restartBtn">Neues Spiel starten</button>
+  </div>
+
+  <script>
+    const locations = [
+      "Krankenhaus", "Flughafen", "Schule", "Kino", "Restaurant",
+      "Strand", "U-Boot", "Raumstation", "Bank", "Zirkus",
+      "Polizeistation", "Bahnhof", "Kreuzfahrtschiff", "Bauernhof"
+    ];
+
+    let players = [];
+    let spionIndex = -1;
+    let selectedLocation = "";
+    let currentIndex = 0;
+
+    function createPlayerInputs() {
+      const count = parseInt(document.getElementById("playerCount").value);
+      const inputsDiv = document.getElementById("inputs");
+      inputsDiv.innerHTML = "";
+      for (let i = 0; i < count; i++) {
+        const input = document.createElement("input");
+        input.placeholder = "Spieler " + (i + 1);
+        inputsDiv.appendChild(input);
+      }
+      document.querySelector(".setup").style.display = "none";
+      document.querySelector(".player-inputs").style.display = "block";
+    }
+
+    function startGame() {
+      const inputFields = document.querySelectorAll("#inputs input");
+      players = Array.from(inputFields).map(i => i.value.trim() || "Spieler");
+      if (players.length < 4 || players.length > 10) {
+        alert("Bitte gib 4 bis 10 Spielernamen ein.");
+        return;
+      }
+      spionIndex = Math.floor(Math.random() * players.length);
+      selectedLocation = locations[Math.floor(Math.random() * locations.length)];
+      document.querySelector(".player-inputs").style.display = "none";
+      document.querySelector(".game-screen").style.display = "block";
+      showPlayer();
+    }
+
+    function showPlayer() {
+      document.getElementById("currentPlayer").innerText = `${players[currentIndex]}, schau dir deine Rolle an!`;
+      document.getElementById("roleReveal").innerText = "";
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("restartBtn").style.display = "none";
+    }
+
+    function showInfo() {
+      if (currentIndex === spionIndex) {
+        document.getElementById("roleReveal").innerText = "❓ Du bist der Spion!";
+      } else {
+        document.getElementById("roleReveal").innerText = `📍 Ort: ${selectedLocation}`;
+      }
+      document.getElementById("nextBtn").style.display = "block";
+    }
+
+    function nextPlayer() {
+      currentIndex++;
+      if (currentIndex < players.length) {
+        showPlayer();
+      } else {
+        document.getElementById("currentPlayer").innerText = "Alle Rollen sind verteilt!";
+        document.getElementById("roleReveal").innerText = "Viel Spaß beim Spielen!";
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("restartBtn").style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>
